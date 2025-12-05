@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
-import { Mood, Language } from '../types';
-import { FALLBACK_QUOTES, POST_SESSION_MESSAGES } from '../constants';
+import { Mood, Language } from "../types";
+import { FALLBACK_QUOTES, POST_SESSION_MESSAGES } from "../constants";
 
 let genAI: GoogleGenAI | null = null;
 
@@ -8,12 +8,15 @@ if (process.env.API_KEY) {
   genAI = new GoogleGenAI({ apiKey: process.env.API_KEY });
 }
 
-export const generateWisdomCard = async (mood: Mood, lang: Language): Promise<string> => {
+export const generateWisdomCard = async (
+  mood: Mood,
+  lang: Language
+): Promise<string> => {
   if (!genAI) {
     return "API Key not configured. Please add your API_KEY.";
   }
 
-  const languageName = lang === 'th' ? 'Thai (ภาษาไทย)' : 'English';
+  const languageName = lang === "th" ? "Thai (ภาษาไทย)" : "English";
 
   try {
     const prompt = `
@@ -25,11 +28,16 @@ export const generateWisdomCard = async (mood: Mood, lang: Language): Promise<st
     `;
 
     const response = await genAI.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
 
-    return response.text || (lang === 'th' ? "ขอให้วันนี้เป็นวันที่ดีของคุณ" : "May you have a wonderful day.");
+    return (
+      response.text ||
+      (lang === "th"
+        ? "ขอให้วันนี้เป็นวันที่ดีของคุณ"
+        : "May you have a wonderful day.")
+    );
   } catch (error) {
     console.error("Gemini Error:", error);
     // Fallback based on language
@@ -38,14 +46,19 @@ export const generateWisdomCard = async (mood: Mood, lang: Language): Promise<st
   }
 };
 
-export const generateMeditationScript = async (mood: Mood, durationMinutes: number, lang: Language): Promise<string> => {
-  const defaultText = lang === 'th' 
-    ? "หายใจเข้า... รู้สึกผ่อนคลาย หายใจออก... ปล่อยวางความกังวล"
-    : "Breathe in... feel relaxed. Breathe out... let go of worries.";
+export const generateMeditationScript = async (
+  mood: Mood,
+  durationMinutes: number,
+  lang: Language
+): Promise<string> => {
+  const defaultText =
+    lang === "th"
+      ? "หายใจเข้า... รู้สึกผ่อนคลาย หายใจออก... ปล่อยวางความกังวล"
+      : "Breathe in... feel relaxed. Breathe out... let go of worries.";
 
   if (!genAI) return defaultText;
 
-  const languageName = lang === 'th' ? 'Thai (ภาษาไทย)' : 'English';
+  const languageName = lang === "th" ? "Thai (ภาษาไทย)" : "English";
 
   try {
     const prompt = `
@@ -63,7 +76,7 @@ export const generateMeditationScript = async (mood: Mood, durationMinutes: numb
     `;
 
     const response = await genAI.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
 
@@ -74,28 +87,31 @@ export const generateMeditationScript = async (mood: Mood, durationMinutes: numb
   }
 };
 
-export const generatePostSessionMessage = async (mood: Mood, lang: Language): Promise<string> => {
-    const defaultText = POST_SESSION_MESSAGES[lang];
-    if (!genAI) return defaultText;
+export const generatePostSessionMessage = async (
+  mood: Mood,
+  lang: Language
+): Promise<string> => {
+  const defaultText = POST_SESSION_MESSAGES[lang];
+  if (!genAI) return defaultText;
 
-    const languageName = lang === 'th' ? 'Thai (ภาษาไทย)' : 'English';
+  const languageName = lang === "th" ? "Thai (ภาษาไทย)" : "English";
 
-    try {
-        const prompt = `
+  try {
+    const prompt = `
           The user has just finished a meditation session. They were feeling "${mood}" before starting.
           Write a warm, healing, and encouraging message (max 2-3 sentences) in ${languageName} to congratulate them and give them a final positive thought to carry on with their day.
           Tone: Very kind, soft, healing, like a supportive hug.
           Do not use quotation marks.
         `;
-    
-        const response = await genAI.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: prompt,
-        });
-    
-        return response.text || defaultText;
-      } catch (error) {
-        console.error("Gemini Error:", error);
-        return defaultText;
-      }
-}
+
+    const response = await genAI.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    return response.text || defaultText;
+  } catch (error) {
+    console.error("Gemini Error:", error);
+    return defaultText;
+  }
+};
